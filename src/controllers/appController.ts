@@ -24,10 +24,10 @@ export let register = async (req: Request, res: Response) => {
             });
         }
         else{
-            let savedUser = getManager().getRepository(userEntity).save(user);
+            let savedUser = await getManager().getRepository(userEntity).save(user);
             res.send({
-                emp_id: (await savedUser).emp_id,
-                password: (await savedUser).password,
+                emp_id: (savedUser).emp_id,
+                password: (savedUser).password,
                 message: "Registration Successful"
             });
         }
@@ -82,11 +82,9 @@ export let fetchgroups = async (req: Request, res: Response) => {
     if(uid){
         try{
             var group_ids: number[] = new Array();
-            let user_groups = await getManager().getRepository(user_groupsEntity).find();
+            let user_groups = await getManager().getRepository(user_groupsEntity).find({ emp_id: uid });
             user_groups.map((user_group) => {
-                if(user_group.emp_id === uid) {
-                    group_ids.push(user_group.group_id);
-                }
+               group_ids.push(user_group.group_id);
             })
             let user_names = await getManager().getRepository(groupsEntity).findByIds(group_ids);
             res.send(user_names);
@@ -149,8 +147,9 @@ export let addActivity = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        let user_group_exists = await getManager().query(query);
+        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query);
+        let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if(sizeOfuser_group_exists>0){
     
@@ -161,10 +160,10 @@ export let addActivity = async (req: Request, res: Response) => {
                 activity.activity_name = req.body.activity_name;
                 activity.isCompleted = false;
                 
-                let savesActivity = await getManager().getRepository(activitiesEntity).save(activity);
+                let savedActivity = await getManager().getRepository(activitiesEntity).save(activity);
                 res.send({
                     message: "activity created",
-                    activity: savesActivity
+                    activity: savedActivity
                 })
             }
             catch(error){
@@ -197,15 +196,17 @@ export let fetchActivities = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        let query1 = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        let user_group_exists = await getManager().query(query1);
+        // let query1 = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query1);
+        let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
 
         if(sizeOfuser_group_exists>0){
     
             try{
-                let query2 = "select * from activities where group_id="+group_id;
-                let allActivities = await getManager().query(query2)
+                // let query2 = "select * from activities where group_id="+group_id;
+                // let allActivities = await getManager().query(query2)
+                let allActivities = await getManager().getRepository(activitiesEntity).find({group_id:group_id})
                 res.send({
                     message: "activities fetched",
                     activities: allActivities
@@ -236,8 +237,10 @@ export let updateActivityStatus = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        let user_group_exists = await getManager().query(query);
+        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query);
+        let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
+
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if(sizeOfuser_group_exists>0){
     

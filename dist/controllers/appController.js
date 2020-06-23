@@ -29,10 +29,10 @@ exports.register = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         else {
-            let savedUser = typeorm_1.getManager().getRepository(userEntity_1.userEntity).save(user);
+            let savedUser = yield typeorm_1.getManager().getRepository(userEntity_1.userEntity).save(user);
             res.send({
-                emp_id: (yield savedUser).emp_id,
-                password: (yield savedUser).password,
+                emp_id: (savedUser).emp_id,
+                password: (savedUser).password,
                 message: "Registration Successful"
             });
         }
@@ -80,11 +80,9 @@ exports.fetchgroups = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     if (uid) {
         try {
             var group_ids = new Array();
-            let user_groups = yield typeorm_1.getManager().getRepository(user_groupsEntity_1.user_groupsEntity).find();
+            let user_groups = yield typeorm_1.getManager().getRepository(user_groupsEntity_1.user_groupsEntity).find({ emp_id: uid });
             user_groups.map((user_group) => {
-                if (user_group.emp_id === uid) {
-                    group_ids.push(user_group.group_id);
-                }
+                group_ids.push(user_group.group_id);
             });
             let user_names = yield typeorm_1.getManager().getRepository(groupsEntity_1.groupsEntity).findByIds(group_ids);
             res.send(user_names);
@@ -140,8 +138,9 @@ exports.addActivity = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     let uid = req.session.uid;
     if (uid) {
         let group_id = req.body.group_id;
-        let query = "select * from user_groups where emp_id='" + uid + "' and group_id=" + group_id;
-        let user_group_exists = yield typeorm_1.getManager().query(query);
+        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query);
+        let user_group_exists = yield typeorm_1.getManager().getRepository(user_groupsEntity_1.user_groupsEntity).find({ emp_id: uid, group_id: group_id });
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if (sizeOfuser_group_exists > 0) {
             try {
@@ -149,10 +148,10 @@ exports.addActivity = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                 activity.group_id = group_id;
                 activity.activity_name = req.body.activity_name;
                 activity.isCompleted = false;
-                let savesActivity = yield typeorm_1.getManager().getRepository(activitiesEntity_1.activitiesEntity).save(activity);
+                let savedActivity = yield typeorm_1.getManager().getRepository(activitiesEntity_1.activitiesEntity).save(activity);
                 res.send({
                     message: "activity created",
-                    activity: savesActivity
+                    activity: savedActivity
                 });
             }
             catch (error) {
@@ -182,13 +181,15 @@ exports.fetchActivities = (req, res) => __awaiter(void 0, void 0, void 0, functi
     let uid = req.session.uid;
     if (uid) {
         let group_id = req.body.group_id;
-        let query1 = "select * from user_groups where emp_id='" + uid + "' and group_id=" + group_id;
-        let user_group_exists = yield typeorm_1.getManager().query(query1);
+        // let query1 = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query1);
+        let user_group_exists = yield typeorm_1.getManager().getRepository(user_groupsEntity_1.user_groupsEntity).find({ emp_id: uid, group_id: group_id });
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if (sizeOfuser_group_exists > 0) {
             try {
-                let query2 = "select * from activities where group_id=" + group_id;
-                let allActivities = yield typeorm_1.getManager().query(query2);
+                // let query2 = "select * from activities where group_id="+group_id;
+                // let allActivities = await getManager().query(query2)
+                let allActivities = yield typeorm_1.getManager().getRepository(activitiesEntity_1.activitiesEntity).find({ group_id: group_id });
                 res.send({
                     message: "activities fetched",
                     activities: allActivities
@@ -217,8 +218,9 @@ exports.updateActivityStatus = (req, res) => __awaiter(void 0, void 0, void 0, f
     let uid = req.session.uid;
     if (uid) {
         let group_id = req.body.group_id;
-        let query = "select * from user_groups where emp_id='" + uid + "' and group_id=" + group_id;
-        let user_group_exists = yield typeorm_1.getManager().query(query);
+        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
+        // let user_group_exists = await getManager().query(query);
+        let user_group_exists = yield typeorm_1.getManager().getRepository(user_groupsEntity_1.user_groupsEntity).find({ emp_id: uid, group_id: group_id });
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if (sizeOfuser_group_exists > 0) {
             try {
