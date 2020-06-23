@@ -114,7 +114,6 @@ export let addActivityGroup = async (req: Request, res: Response) => {
             let createdGroup = await getManager().getRepository(groupsEntity).save(group);
             console.log("created group:")
             console.log(createdGroup);
-            //console.log(createdGroup.group_name);
 
             let createdGroupId = createdGroup.group_id;
             let user_group : user_groupsEntity = new user_groupsEntity();
@@ -147,8 +146,6 @@ export let addActivity = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        // let user_group_exists = await getManager().query(query);
         let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
         if(sizeOfuser_group_exists>0){
@@ -196,16 +193,12 @@ export let fetchActivities = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        // let query1 = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        // let user_group_exists = await getManager().query(query1);
         let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
 
         if(sizeOfuser_group_exists>0){
     
             try{
-                // let query2 = "select * from activities where group_id="+group_id;
-                // let allActivities = await getManager().query(query2)
                 let allActivities = await getManager().getRepository(activitiesEntity).find({group_id:group_id})
                 res.send({
                     message: "activities fetched",
@@ -237,8 +230,6 @@ export let updateActivityStatus = async (req: Request, res: Response) => {
     let uid = req.session.uid;
     if(uid){
         let group_id = req.body.group_id;
-        // let query = "select * from user_groups where emp_id='"+uid+"' and group_id="+group_id;
-        // let user_group_exists = await getManager().query(query);
         let user_group_exists = await getManager().getRepository(user_groupsEntity).find({emp_id:uid, group_id:group_id})
 
         let sizeOfuser_group_exists = Object.keys(user_group_exists).length;
