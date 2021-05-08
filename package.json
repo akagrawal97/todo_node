@@ -20,7 +20,7 @@
     "mysql": "^2.18.1",
     "nodemon": "^2.0.4",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.1.21"
+    "typeorm": "^0.2.25"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.0",
